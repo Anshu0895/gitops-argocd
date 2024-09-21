@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: {{ .Values.project.name }}
+  annotations:
+    "helm.sh/hook": "pre-install,post-delete"
+    "helm.sh/hook-weight": "1"  # Runs after namespace is created and before it is deleted
+spec:
+  description: {{ .Values.project.desc }}
+  destinations:
+    - namespace: {{ .Values.project.namespace }}
+      server: '*'
+  sourceRepos:
+    - '*'

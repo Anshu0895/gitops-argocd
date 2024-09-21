@@ -1,0 +1,120 @@
+---
+# Source: car/templates/argocd-app-1.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: car-app-1
+spec:
+  project: car
+  destination:
+    namespace: car
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/car/app-1"
+    targetRevision: HEAD
+  syncPolicy: 
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: car/templates/argocd-app-2.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: car-app-2
+spec:
+  project: car
+  destination:
+    namespace: car
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/car/app-2"
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: car/templates/argocd-app-3.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: car-app-3
+spec:
+  project: car
+  destination:
+    namespace: car
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/car/app-3"
+    targetRevision: HEAD
+  syncPolicy: 
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: car/templates/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: car
+  annotations:
+    "helm.sh/hook": "pre-install,post-delete"
+    "helm.sh/hook-weight": "0"  # Ensures it runs before any other resources
+  labels:
+    app.kubernetes.io/part-of: car
+---
+# Source: car/templates/argocd-project.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: car
+  annotations:
+    "helm.sh/hook": "pre-install,post-delete"
+    "helm.sh/hook-weight": "1"  # Runs after namespace is created and before it is deleted
+spec:
+  description: Car Project
+  destinations:
+    - namespace: car
+      server: '*'
+  sourceRepos:
+    - '*'
