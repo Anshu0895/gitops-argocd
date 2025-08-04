@@ -1,0 +1,120 @@
+---
+# Source: train/templates/argocd-app-1.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: train-app-1
+spec:
+  project: train
+  destination:
+    namespace: train
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/train/app-1"
+    targetRevision: HEAD
+  syncPolicy: 
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: train/templates/argocd-app-2.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: train-app-2
+spec:
+  project: train
+  destination:
+    namespace: train
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/train/app-2"
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: train/templates/argocd-app-3.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: train-app-3
+spec:
+  project: train
+  destination:
+    namespace: train
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/train/app-3"
+    targetRevision: HEAD
+  syncPolicy: 
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: train/templates/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: train
+  annotations:
+    "helm.sh/hook": "pre-install,post-delete"
+    "helm.sh/hook-weight": "0"  # Ensures it runs before any other resources
+  labels:
+    app.kubernetes.io/part-of: train
+---
+# Source: train/templates/argocd-project.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: train
+  annotations:
+    "helm.sh/hook": "pre-install,post-delete"
+    "helm.sh/hook-weight": "1"  # Runs after namespace is created and before it is deleted
+spec:
+  description: Train Project
+  destinations:
+    - namespace: train
+      server: '*'
+  sourceRepos:
+    - '*'

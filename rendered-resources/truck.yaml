@@ -1,0 +1,120 @@
+---
+# Source: truck/templates/argocd-app-1.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: truck-app-1
+spec:
+  project: truck
+  destination:
+    namespace: truck
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/truck/app-1"
+    targetRevision: HEAD
+  syncPolicy: 
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: truck/templates/argocd-app-2.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: truck-app-2
+spec:
+  project: truck
+  destination:
+    namespace: truck
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/truck/app-2"
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: truck/templates/argocd-app-3.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: truck-app-3
+spec:
+  project: truck
+  destination:
+    namespace: truck
+    name: in-cluster
+  source:
+    repoURL: https://github.com/mangadev-dev-to/gitops-argocd
+    path: "gitops/truck/app-3"
+    targetRevision: HEAD
+  syncPolicy: 
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m0s
+      limit: 2
+    syncOptions:
+    - CreateNamespace=true
+    - PrunePropagationPolicy=foreground
+    - PruneLast=true
+    - RespectIgnoreDifferences=true
+    - ApplyOutOfSyncOnly=true
+---
+# Source: truck/templates/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: truck
+  annotations:
+    "helm.sh/hook": "pre-install,post-delete"
+    "helm.sh/hook-weight": "0"  # Ensures it runs before any other resources
+  labels:
+    app.kubernetes.io/part-of: truck
+---
+# Source: truck/templates/argocd-project.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: truck
+  annotations:
+    "helm.sh/hook": "pre-install,post-delete"
+    "helm.sh/hook-weight": "1"  # Runs after namespace is created and before it is deleted
+spec:
+  description: Truck Project
+  destinations:
+    - namespace: truck
+      server: '*'
+  sourceRepos:
+    - '*'
